@@ -284,7 +284,7 @@ public:
         , m_perFrameDecodeImageSet()
         , m_displayFrames()
         , m_queryPool()
-        , m_ownedByDisplayMask(0)
+        , m_ownedByDisplayCount{}
         , m_frameNumInDisplayOrder(0)
         , m_numberParameterUpdates(0)
         , m_maxNumImageTypeIdx(0)
@@ -377,7 +377,7 @@ public:
 
         DestroyVideoQueries();
 
-        m_ownedByDisplayMask = 0;
+        m_ownedByDisplayCount.fill(0);
         m_frameNumInDisplayOrder = 0;
 
         m_perFrameDecodeImageSet.Deinit(m_vkDevCtx);
@@ -511,8 +511,7 @@ public:
             numberofPendingFrames = (int)m_displayFrames.size();
             pictureIndex = m_displayFrames.front();
             assert((pictureIndex >= 0) && ((uint32_t)pictureIndex < m_perFrameDecodeImageSet.size()));
-            assert(!(m_ownedByDisplayMask & (1 << pictureIndex)));
-            m_ownedByDisplayMask |= (1 << pictureIndex);
+            m_ownedByDisplayCount[pictureIndex]++;
             m_displayFrames.pop();
             m_perFrameDecodeImageSet[pictureIndex].m_inDisplayQueue = false;
             m_perFrameDecodeImageSet[pictureIndex].m_ownedByConsummer = true;
@@ -596,10 +595,12 @@ public:
             assert((picId >= 0) && ((uint32_t)picId < m_perFrameDecodeImageSet.size()));
 
             assert(m_perFrameDecodeImageSet[picId].m_decodeOrder == pDecodedFrameRelease->decodeOrder);
-            assert(m_perFrameDecodeImageSet[picId].m_displayOrder == pDecodedFrameRelease->displayOrder);
+            // No assertion for displayOrder: show_existing_frame can queue the same frame multiple
+            // times with different displayOrders. The stored value reflects the most recent queue,
+            // while releases arrive in original queue order, so they won't match.
 
-            assert(m_ownedByDisplayMask & (1 << picId));
-            m_ownedByDisplayMask &= ~(1 << picId);
+            assert(m_ownedByDisplayCount[picId] > 0);
+            m_ownedByDisplayCount[picId]--;
             m_perFrameDecodeImageSet[picId].m_inDecodeQueue = false;
             m_perFrameDecodeImageSet[picId].m_ownedByConsummer = false;
             m_perFrameDecodeImageSet[picId].Release();
@@ -770,7 +771,7 @@ private:
     NvPerFrameDecodeImageSet m_perFrameDecodeImageSet;
     std::queue<uint8_t>      m_displayFrames;
     VkQueryPool              m_queryPool;
-    uint32_t                 m_ownedByDisplayMask;
+    std::array<uint8_t, 32>  m_ownedByDisplayCount;  // Counter per frame for multi-queue support
     int32_t                  m_frameNumInDisplayOrder;
     uint32_t                 m_numberParameterUpdates;
     uint32_t                 m_maxNumImageTypeIdx : 4;

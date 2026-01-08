@@ -207,12 +207,16 @@ public:
 
         assert((pFrame->displayWidth >= 0) && (pFrame->displayHeight >= 0));
 
-        WaitAndGetStatus(vkDevCtx,
-                        *vkDevCtx,
-                        pFrame->frameCompleteFence,
-                        pFrame->queryPool,
-                        pFrame->startQueryId,
-                        pFrame->pictureIndex, false, "frameCompleteFence");
+        // Only wait for the fence if one was signaled (show_existing_frame reuses
+        // already-decoded frames without a new decode operation, so no fence)
+        if (pFrame->frameCompleteFence != VK_NULL_HANDLE) {
+            WaitAndGetStatus(vkDevCtx,
+                            *vkDevCtx,
+                            pFrame->frameCompleteFence,
+                            pFrame->queryPool,
+                            pFrame->startQueryId,
+                            pFrame->pictureIndex, false, "frameCompleteFence");
+        }
 
         VkFormat format = imageResource->GetImageCreateInfo().format;
         const VkMpFormatInfo* mpInfo = YcbcrVkFormatInfo(format);
