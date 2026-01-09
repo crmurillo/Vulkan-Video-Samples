@@ -2522,6 +2522,10 @@ bool VulkanVideoParser::DecodePicture(
 
         assert(!pd->ref_pic_flag || (setupReferenceSlot.slotIndex >= 0));
         if (setupReferenceSlot.slotIndex >= 0) {
+            // Set per-frame coded extent for AV1 (supports frame_size_override_flag)
+            pCurrFrameDecParams->dpbSetupPictureResource.codedExtent.width = pin->upscaled_width;
+            pCurrFrameDecParams->dpbSetupPictureResource.codedExtent.height = pin->frame_height;
+
             setupReferenceSlot.pPictureResource = &pCurrFrameDecParams->dpbSetupPictureResource;
             pCurrFrameDecParams->decodeFrameInfo.pSetupReferenceSlot = &setupReferenceSlot;
 
@@ -2571,6 +2575,10 @@ bool VulkanVideoParser::DecodePicture(
         pin->tileInfo.pMiRowStarts = pin->MiRowStarts;
 
         pDecodePictureInfo->flags.applyFilmGrain = pin->std_info.flags.apply_grain;
+
+        // AV1 supports super resolution
+        pDecodePictureInfo->displayWidth = pin->upscaled_width;
+        pDecodePictureInfo->displayHeight = pin->frame_height;
 
     } else if (m_codecType == VK_VIDEO_CODEC_OPERATION_DECODE_VP9_BIT_KHR) {
 
@@ -2663,7 +2671,8 @@ bool VulkanVideoParser::DecodePicture(
         pDecodePictureInfo->displayHeight = pin->FrameHeight;
     }
 
-    if (m_codecType != VK_VIDEO_CODEC_OPERATION_DECODE_VP9_BIT_KHR) {
+    if (m_codecType != VK_VIDEO_CODEC_OPERATION_DECODE_VP9_BIT_KHR &&
+        m_codecType != VK_VIDEO_CODEC_OPERATION_DECODE_AV1_BIT_KHR) {
         pDecodePictureInfo->displayWidth  = m_nvsi.nDisplayWidth;
         pDecodePictureInfo->displayHeight = m_nvsi.nDisplayHeight;
     }

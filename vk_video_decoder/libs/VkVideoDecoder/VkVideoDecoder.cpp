@@ -792,10 +792,11 @@ int VkVideoDecoder::DecodePictureWithParameters(VkParserPerFrameDecodeParameters
     }
 
     pCurrFrameDecParams->dpbSetupPictureResource.codedOffset = { 0, 0 }; // FIXME: This parameter must to be adjusted based on the interlaced mode.
-    // Setup picture may have different resolution compared to previous frames in VP9
-    // So, set the codedExtent earlier in VP9 specific code and skip it here.
-    // TODO: Do the same for other codedcs
-    if (m_videoFormat.codec != VK_VIDEO_CODEC_OPERATION_DECODE_VP9_BIT_KHR) {
+    // Setup picture may have different resolution compared to previous frames in VP9 and AV1
+    // So, set the codedExtent earlier in codec-specific code and skip it here.
+    // TODO: Do the same for other codecs
+    if (m_videoFormat.codec != VK_VIDEO_CODEC_OPERATION_DECODE_VP9_BIT_KHR &&
+        m_videoFormat.codec != VK_VIDEO_CODEC_OPERATION_DECODE_AV1_BIT_KHR) {
         pCurrFrameDecParams->dpbSetupPictureResource.codedExtent = m_codedExtent;
     }
 
@@ -839,10 +840,11 @@ int VkVideoDecoder::DecodePictureWithParameters(VkParserPerFrameDecodeParameters
         }
 
         pOutputPictureResource->codedOffset = { 0, 0 }; // FIXME: This parameter must to be adjusted based on the interlaced mode.
-        // Setup picture may have different resolution compared to previous frames in VP9
-        // So, set the codedExtent earlier in VP9 specific code and skip it here.
-        // TODO: Do the same for other codedcs
-        if (m_videoFormat.codec != VK_VIDEO_CODEC_OPERATION_DECODE_VP9_BIT_KHR) {
+        // Setup picture may have different resolution compared to previous frames in VP9 and AV1
+        // So, set the codedExtent earlier in codec-specific code and skip it here.
+        // TODO: Do the same for other codecs
+        if (m_videoFormat.codec != VK_VIDEO_CODEC_OPERATION_DECODE_VP9_BIT_KHR &&
+            m_videoFormat.codec != VK_VIDEO_CODEC_OPERATION_DECODE_AV1_BIT_KHR) {
             pOutputPictureResource->codedExtent = m_codedExtent;
         } else {
             pOutputPictureResource->codedExtent = pCurrFrameDecParams->dpbSetupPictureResource.codedExtent;
