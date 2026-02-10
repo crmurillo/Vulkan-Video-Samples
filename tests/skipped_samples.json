@@ -97,15 +97,30 @@
       "source_filepath": "video/av1/av1-argon_test1019.obu",
       "format": "vvs",
       "drivers": [
-        "all"
+        "radv"
       ],
       "platforms": [
         "all"
       ],
       "reproduction": "always",
-      "reason": "Argon test - needs investigation. Color primaries assertion failed",
-      "bug_url": "https://github.com/KhronosGroup/Vulkan-Video-Samples/issues/123",
+      "reason": "Argon test - under investigation. Assertion `!(m_ownedByDisplayMask & (1 << pictureIndex))' fails",
+      "bug_url": "https://github.com/KhronosGroup/Vulkan-Video-Samples/issues/138",
       "date_added": "2025-01-27"
+    },
+    {
+      "name": "av1_argon_test1019",
+      "source_filepath": "video/av1/av1-argon_test1019.obu",
+      "format": "vvs",
+      "drivers": [
+        "anv"
+      ],
+      "platforms": [
+        "all"
+      ],
+      "reproduction": "always",
+      "reason": "Fence timeout",
+      "bug_url": "https://github.com/KhronosGroup/Vulkan-Video-Samples/issues/164",
+      "date_added": "2026-02-10"
     },
     {
       "name": "av1_argon_test787",
