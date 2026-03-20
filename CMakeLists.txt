@@ -74,18 +74,12 @@ else()
         if ((CMAKE_GENERATOR_PLATFORM MATCHES "^aarch64") OR (CMAKE_GENERATOR_PLATFORM MATCHES "^arm64") OR (CMAKE_GENERATOR_PLATFORM MATCHES "^ARM64"))
             set(VULKAN_FFMPEG_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/vk_video_decoder/bin/libs/ffmpeg/winarm64/lib" CACHE PATH "Path to FFMPEG libs directory" FORCE)
             message(STATUS "FFMPEG Windows ARM64 lib location ${VULKAN_FFMPEG_LIB_PATH}")
-            set(FFMPEG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vk_video_decoder/bin/libs/ffmpeg/winarm64/include" CACHE PATH "Path to FFMPEG include directory" FORCE)
-            message(STATUS "FFMPEG Windows ARM64 include location ${FFMPEG_INCLUDE_DIR}")
         elseif ((CMAKE_GENERATOR_PLATFORM MATCHES "^arm") OR (CMAKE_GENERATOR_PLATFORM MATCHES "^ARM"))
             set(VULKAN_FFMPEG_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/vk_video_decoder/bin/libs/ffmpeg/winarm/lib" CACHE PATH "Path to FFMPEG libs directory" FORCE)
-            message(STATUS "FFMPEG Windows ARM64 lib location ${VULKAN_FFMPEG_LIB_PATH}")
-            set(FFMPEG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vk_video_decoder/bin/libs/ffmpeg/winarm/include" CACHE PATH "Path to FFMPEG include directory" FORCE)
-            message(STATUS "FFMPEG Windows ARM64 include location ${FFMPEG_INCLUDE_DIR}")
+            message(STATUS "FFMPEG Windows ARM lib location ${VULKAN_FFMPEG_LIB_PATH}")
         else()
             set(VULKAN_FFMPEG_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/vk_video_decoder/bin/libs/ffmpeg/win64/lib" CACHE PATH "Path to FFMPEG libs directory" FORCE)
             message(STATUS "FFMPEG Windows x86_64 lib location ${VULKAN_FFMPEG_LIB_PATH}")
-            set(FFMPEG_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vk_video_decoder/bin/libs/ffmpeg/win64/include" CACHE PATH "Path to FFMPEG include directory" FORCE)
-            message(STATUS "FFMPEG Windows x86_64 include location ${FFMPEG_INCLUDE_DIR}")
         endif()
     else()
         message( STATUS "The location of the FFMPEG Lib: ${VULKAN_FFMPEG_LIB_PATH} expected the library to be installed to the regular system libs location" )
@@ -98,42 +92,28 @@ include(FindFFmpeg)
 set(FFMPEG_AVAILABLE OFF)
 
 # FFMPEG_FOUND - system has ffmpeg or libav
-# FFMPEG_INCLUDE_DIR - the ffmpeg include directory
+# FFMPEG_INCLUDE_DIRS - the ffmpeg include directories
 # FFMPEG_LIBRARIES
-# FFMPEG_LIBAVCODEC
-# FFMPEG_LIBAVFORMAT
-# FFMPEG_LIBAVUTIL
+# FFMPEG_LIBAVCODEC_LIBRARIES
+# FFMPEG_LIBAVFORMAT_LIBRARIES
+# FFMPEG_LIBAVUTIL_LIBRARIES
 if(FFMPEG_FOUND)
     message("Found FFMPEG/LibAV libraries")
-    include_directories(${FFMPEG_INCLUDE_DIR})
+    include_directories(${FFMPEG_INCLUDE_DIRS})
     set(FFMPEG_AVAILABLE ON)
-else()
-    if(WIN32)
-       find_library(AVCODEC_LIB NAMES avcodec PATHS ${VULKAN_FFMPEG_LIB_PATH})
-       message(STATUS ${AVCODEC_LIB})
-       find_library(AVFORMAT_LIB NAMES avformat PATHS ${VULKAN_FFMPEG_LIB_PATH})
-       message(STATUS ${AVFORMAT_LIB})
-       find_library(AVUTIL_LIB NAMES avutil PATHS ${VULKAN_FFMPEG_LIB_PATH})
-       message(STATUS ${AVUTIL_LIB})
 
-       if(AVCODEC_LIB AND AVFORMAT_LIB AND AVUTIL_LIB)
-           message(STATUS "Found FFMPEG libraries manually")
-           set(FFMPEG_AVAILABLE ON)
-           include_directories(${FFMPEG_INCLUDE_DIR})
+    # Install Windows FFmpeg DLLs and libs
+    if(WIN32 AND EXISTS "${VULKAN_FFMPEG_LIB_PATH}")
+        install(DIRECTORY "${VULKAN_FFMPEG_LIB_PATH}/../bin/"
+            DESTINATION "${CMAKE_INSTALL_PREFIX}/bin"
+            PATTERN "*.def" EXCLUDE
+            PATTERN "*.a" EXCLUDE)
 
-           install(DIRECTORY "${VULKAN_FFMPEG_LIB_PATH}/../bin/"
-           DESTINATION "${CMAKE_INSTALL_PREFIX}/bin"
-                PATTERN "*.def" EXCLUDE
-                PATTERN "*.a" EXCLUDE)
-
-           install(DIRECTORY "${VULKAN_FFMPEG_LIB_PATH}/"
-                DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
-       else()
-            message(WARNING "Can't find libavcodec, libavformat, or libavutil on Windows!")
-       endif()
-    else()
-        message(WARNING "Can't find libavcodec, libavformat, or libavutil on Linux!")
+        install(DIRECTORY "${VULKAN_FFMPEG_LIB_PATH}/"
+            DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
     endif()
+else()
+    message(WARNING "Can't find libavcodec, libavformat, or libavutil!")
 endif()
 
 if (NOT FFMPEG_AVAILABLE)
