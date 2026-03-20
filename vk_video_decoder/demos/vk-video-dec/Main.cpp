@@ -45,6 +45,9 @@ int main(int argc, const char **argv)
     if (result != VK_SUCCESS) {
         fprintf(stderr, "Error: Failed to initialize VideoStreamDemuxer for file: %s\n",
                 decoderConfig.videoFileName.c_str());
+#ifndef FFMPEG_DEMUXER_SUPPORT
+        fprintf(stderr, "Note: This build does not include FFmpeg demuxer support.\n");
+#endif
         return EXIT_FAILURE;
     }
 
