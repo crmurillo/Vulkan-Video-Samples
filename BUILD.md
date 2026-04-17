@@ -65,7 +65,7 @@ Windows 10 or Windows 11 with the following software packages:
   - FFmpeg is downloaded automatically during CMake configuration from https://github.com/BtbN/FFmpeg-Builds/releases
   - The download is skipped if the libraries are already present in `vk_video_decoder\bin\libs\ffmpeg\<platform>\lib`
   - To disable automatic download, pass `-DDOWNLOAD_FFMPEG=OFF` to CMake
-  - To download manually instead, get the latest version of the FFMPEG shared libraries archive from https://github.com/BtbN/FFmpeg-Builds/releases
+  - To download manually instead before the CMake configure, get the version of the FFMPEG shared libraries archive from any desired source.
     - The archive must have the following pattern in the name:
       - For Windows x86_64 ffmpeg-*-win64-*-shared.zip
     - Example download link:
