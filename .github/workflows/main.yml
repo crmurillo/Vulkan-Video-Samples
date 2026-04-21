@@ -201,30 +201,26 @@ jobs:
   Vulkan-Video-Samples-win:
     strategy:
       matrix:
-        platform: [windows-x64, windows-x64-clang, windows-x64-ffmpeg, windows-x86, windows-x86-clang, win-arm64]
+        platform: [windows-x64, windows-x64-clang, windows-x64-without-ffmpeg, windows-x86, windows-x86-clang, win-arm64]
         include:
           - platform: windows-x64
             arch: x64
             cmake_arch: x64
-            extra_cmake_flags: -DDOWNLOAD_FFMPEG=OFF
           - platform: windows-x64-clang
             arch: x64
             cmake_arch: x64
-            extra_cmake_flags: -DDOWNLOAD_FFMPEG=OFF
             toolset: ClangCL
-          - platform: windows-x64-ffmpeg
+          - platform: windows-x64-without-ffmpeg
             arch: x64
             cmake_arch: x64
-            extra_cmake_flags: -DDOWNLOAD_FFMPEG=ON
+            extra_cmake_flags: -DDOWNLOAD_FFMPEG=OFF
           - platform: windows-x86
             arch: x86
             cmake_arch: Win32
-            extra_cmake_flags: -DDOWNLOAD_FFMPEG=OFF
           - platform: windows-x86-clang
             arch: x86
             cmake_arch: Win32
             toolset: ClangCL
-            extra_cmake_flags: -DDOWNLOAD_FFMPEG=OFF
           - platform: win-arm64
             arch: arm64
             cmake_arch: ARM64
