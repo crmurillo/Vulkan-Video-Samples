@@ -217,10 +217,12 @@ jobs:
           - platform: windows-x86
             arch: x86
             cmake_arch: Win32
+            extra_cmake_flags: -DDOWNLOAD_FFMPEG=OFF
           - platform: windows-x86-clang
             arch: x86
             cmake_arch: Win32
             toolset: ClangCL
+            extra_cmake_flags: -DDOWNLOAD_FFMPEG=OFF
           - platform: win-arm64
             arch: arm64
             cmake_arch: ARM64
