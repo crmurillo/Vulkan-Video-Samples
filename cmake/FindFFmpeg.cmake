@@ -8,7 +8,6 @@
 #   FFMPEG_LIBAVCODEC_LIBRARIES    - avcodec library
 #   FFMPEG_LIBAVFORMAT_LIBRARIES   - avformat library
 #   FFMPEG_LIBAVUTIL_LIBRARIES     - avutil library
-#   FFMPEG_LIBSWSCALE_LIBRARIES    - swscale library (optional)
 #   FFMPEG_LIB_DIR                 - Directory containing FFmpeg libraries
 #
 # Accepts:
@@ -22,7 +21,6 @@ if(PKG_CONFIG_FOUND)
         libavcodec
         libavformat
         libavutil
-        libswscale
     )
 endif()
 
@@ -111,12 +109,6 @@ find_library(FFMPEG_LIBAVUTIL_LIBRARIES
     PATHS ${FFMPEG_LIB_SEARCH_PATHS}
 )
 
-# Find optional libraries
-find_library(FFMPEG_LIBSWSCALE_LIBRARIES
-    NAMES swscale
-    PATHS ${FFMPEG_LIB_SEARCH_PATHS}
-)
-
 # All required result variables
 set(FFMPEG_REQUIRED_VARS
     FFMPEG_LIBAVCODEC_INCLUDE_DIR
@@ -132,10 +124,7 @@ find_package_handle_standard_args(FFmpeg
     REQUIRED_VARS ${FFMPEG_REQUIRED_VARS}
 )
 
-mark_as_advanced(
-    ${FFMPEG_REQUIRED_VARS}
-    FFMPEG_LIBSWSCALE_LIBRARIES
-)
+mark_as_advanced(${FFMPEG_REQUIRED_VARS})
 
 if(FFMPEG_FOUND)
     set(FFMPEG_INCLUDE_DIRS
@@ -149,8 +138,5 @@ if(FFMPEG_FOUND)
         ${FFMPEG_LIBAVFORMAT_LIBRARIES}
         ${FFMPEG_LIBAVUTIL_LIBRARIES}
     )
-    if(FFMPEG_LIBSWSCALE_LIBRARIES)
-        list(APPEND FFMPEG_LIBRARIES ${FFMPEG_LIBSWSCALE_LIBRARIES})
-    endif()
     get_filename_component(FFMPEG_LIB_DIR "${FFMPEG_LIBAVCODEC_LIBRARIES}" DIRECTORY)
 endif() # FFMPEG_FOUND
