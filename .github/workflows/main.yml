@@ -223,6 +223,7 @@ jobs:
           - platform: win-arm64
             arch: arm64
             cmake_arch: ARM64
+            extra_cmake_args: -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_SYSTEM_PROCESSOR=ARM64
     runs-on: windows-latest
 
     steps:
@@ -275,6 +276,7 @@ jobs:
           cd BUILD_DEBUG
           cmake -DCMAKE_GENERATOR_PLATFORM=${{ matrix.cmake_arch }} \
             ${{ matrix.toolset && format('-T {0}', matrix.toolset) || '' }} \
+            ${{ matrix.extra_cmake_args || '' }} \
             -DCMAKE_BUILD_TYPE=Debug ..
           cmake --build . --parallel $BUILD_JOBS --config Debug
 
@@ -285,6 +287,7 @@ jobs:
             pushd BUILD_RELEASE
             cmake -DCMAKE_GENERATOR_PLATFORM=${{ matrix.cmake_arch }} \
               ${{ matrix.toolset && format('-T {0}', matrix.toolset) || '' }} \
+              ${{ matrix.extra_cmake_args || '' }} \
               -DCMAKE_BUILD_TYPE=Release ..
             cmake --build . --parallel $BUILD_JOBS --config Release
             mkdir release-artifacts
