@@ -199,6 +199,7 @@ jobs:
           path: ${{ env.REPO_NAME }}-release-${{ matrix.platform }}.zip
 
   Vulkan-Video-Samples-win:
+    runs-on: ${{ matrix.os || 'windows-latest' }}
     strategy:
       matrix:
         platform: [windows-x64, windows-x64-clang, windows-x64-ffmpeg, windows-x86, windows-x86-clang, win-arm64]
@@ -221,14 +222,13 @@ jobs:
             cmake_arch: Win32
             toolset: ClangCL
           - platform: win-arm64
+            os: windows-11-arm
             arch: arm64
             cmake_arch: ARM64
-            extra_cmake_args: -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_SYSTEM_PROCESSOR=ARM64
-    runs-on: windows-latest
 
     steps:
       - name: Set up MSVC environment
-        if: matrix.arch != 'x64'
+        if: matrix.arch != 'x64' && matrix.os != 'windows-11-arm'
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{ matrix.arch }}
@@ -276,7 +276,6 @@ jobs:
           cd BUILD_DEBUG
           cmake -DCMAKE_GENERATOR_PLATFORM=${{ matrix.cmake_arch }} \
             ${{ matrix.toolset && format('-T {0}', matrix.toolset) || '' }} \
-            ${{ matrix.extra_cmake_args || '' }} \
             -DCMAKE_BUILD_TYPE=Debug ..
           cmake --build . --parallel $BUILD_JOBS --config Debug
 
@@ -287,7 +286,6 @@ jobs:
             pushd BUILD_RELEASE
             cmake -DCMAKE_GENERATOR_PLATFORM=${{ matrix.cmake_arch }} \
               ${{ matrix.toolset && format('-T {0}', matrix.toolset) || '' }} \
-              ${{ matrix.extra_cmake_args || '' }} \
               -DCMAKE_BUILD_TYPE=Release ..
             cmake --build . --parallel $BUILD_JOBS --config Release
             mkdir release-artifacts
